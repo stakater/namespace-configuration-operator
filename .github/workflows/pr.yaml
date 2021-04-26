@@ -18,7 +18,7 @@ jobs:
     - name: Print working directory
       shell: bash
       run: | 
-        pwd    
+        pwd     
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
@@ -88,10 +88,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: helm
-      # Setting up helm binary
-      - uses: azure/setup-helm@v1 
- 
-      # Publish helm chart to nexus
+      - name: Print working directory
+        shell: bash
+        run: | 
+          pwd  
+        # Setting up helm binary
+        - uses: azure/setup-helm@v1 
+   
+        # Publish helm chart to nexus
       - name: Publish Helm chart
         run: |
           helm package ./charts/namespace-configuration-operator --destination ./packaged-chart
