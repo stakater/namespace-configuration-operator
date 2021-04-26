@@ -91,7 +91,7 @@ jobs:
       - name: Print working directory
         shell: bash
         run: | 
-          pwd  
+          ls 
         # Setting up helm binary
       - uses: azure/setup-helm@v1 
   
