@@ -146,7 +146,7 @@ jobs:
       # Publish helm chart to nexus
       - name: Publish Helm chart
         run: |
-          helm package ./charts/namespace-configuration-operator --destination ./packaged-chart
+          helm package ./namespace-configuration-operator --destination ./packaged-chart
           curl -u ${{ secrets.STAKATER_NEXUS_PROD_HELM_USERNAME }}:${{ secrets.STAKATER_NEXUS_PROD_HELM_PASSWORD }} ${{ secrets.STAKATER_NEXUS_PROD_HELM_REGISTRY }} --upload-file ./packaged-chart/*.tgz
           rm -rf ./packaged-chart
 
