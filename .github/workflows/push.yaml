@@ -140,8 +140,8 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: helm
-        # Setting up helm binary
-       - uses: azure/setup-helm@v1 
+      # Setting up helm binary
+      - uses: azure/setup-helm@v1 
  
       # Publish helm chart to nexus
       - name: Publish Helm chart
