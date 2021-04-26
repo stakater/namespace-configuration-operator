@@ -13,8 +13,12 @@ jobs:
     - name: set repo name
       shell: bash
       run: | 
-        pwd
         echo "REPOSITORY_NAME=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_ENV    
+
+    - name: Print working directory
+      shell: bash
+      run: | 
+        pwd    
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
