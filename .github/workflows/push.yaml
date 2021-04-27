@@ -143,12 +143,21 @@ jobs:
       # Setting up helm binary
       - uses: azure/setup-helm@v1 
  
-      # Publish helm chart to nexus
+      # Publish helm chart 
       - name: Publish Helm chart
-        run: |
-          helm package ./namespace-configuration-operator --destination ./packaged-chart
-          curl -u stakater-user:${{ secrets.STAKATER_GITHUB_TOKEN }} https://stakater.github.io/stakater-charts --upload-file ./packaged-chart/*.tgz
-          rm -rf ./packaged-chart
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          branch: master
+          repository: stakater-charts
+          target_dir: docs
+          token: ${{ secrets.STAKATER_GITHUB_TOKEN }}
+          charts_dir: ./namespace-configuration-operator
+          charts_url: https://stakater.github.io/stakater-charts
+          owner: stakater
+          linting: off 
+          commit_username: stakater-user
+          commit_email: stakater@gmail.com
+          
 
   release-github:
     name: GitHub Release
