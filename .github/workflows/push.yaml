@@ -142,7 +142,9 @@ jobs:
           name: helm
       # Setting up helm binary
       - uses: azure/setup-helm@v1 
- 
+      - name: Pakcage Helm chart
+        run: |
+          helm package ./namespace-configuration-operator --destination ./packaged-chart
       # Publish helm chart 
       - name: Publish Helm chart
         uses: stefanprodan/helm-gh-pages@master
@@ -151,7 +153,7 @@ jobs:
           repository: stakater-charts
           target_dir: docs
           token: ${{ secrets.STAKATER_GITHUB_TOKEN }}
-          charts_dir: ./namespace-configuration-operator
+          charts_dir: ./packaged-chart
           charts_url: https://stakater.github.io/stakater-charts
           owner: stakater
           linting: off 
