@@ -147,18 +147,11 @@ jobs:
           helm package ./namespace-configuration-operator --destination ./packaged-chart
       # Publish helm chart 
       - name: Publish Helm chart
-        uses: stefanprodan/helm-gh-pages@master
-        with:
-          branch: master
-          repository: stakater-charts
-          target_dir: docs
-          token: ${{ secrets.STAKATER_GITHUB_TOKEN }}
-          charts_dir: ./packaged-chart
-          charts_url: https://stakater.github.io/stakater-charts
-          owner: stakater
-          linting: off 
-          commit_username: stakater-user
-          commit_email: stakater@gmail.com
+        run: |
+          helm package ./namespace-configuration-operator --destination ./packaged-chart
+          curl -u ${{ secrets.STAKATER_NEXUS_PROD_HELM_USERNAME }}:${{ secrets.STAKATER_NEXUS_PROD_HELM_PASSWORD }} ${{ secrets.STAKATER_NEXUS_PROD_HELM_REGISTRY }} --upload-file ./packaged-chart/*.tgz
+          curl -u stakater-user:${{ secrets.STAKATER_GITHUB_TOKEN }} https://stakater.github.io/stakater-charts --upload-file ./packaged-chart/*.tgz
+          rm -rf ./packaged-chart
           
 
   release-github:
