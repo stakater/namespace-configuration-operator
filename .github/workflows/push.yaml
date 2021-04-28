@@ -75,11 +75,7 @@ jobs:
     - name: build chart
       shell: bash
       run: make helmchart VERSION=${BUNDLE_VERSION} IMG=${{ secrets.STAKATER_NEXUS_PROD_REGISTRY }}/${{ github.repository }}:${OPERATOR_IMAGE_TAG}
-    - name: Upload helm chart from build job
-      uses: actions/upload-artifact@v2
-      with:
-        name: helm
-        path: ./charts/
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     
@@ -136,23 +132,19 @@ jobs:
           git config --global user.name "$GITHUB_ACTOR"
           git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com "
 
-      - name: Download helm chart from build job
-        uses: actions/download-artifact@v2
-        with:
-          name: helm
-      # Setting up helm binary
-      - uses: azure/setup-helm@v1 
-      - name: Pakcage Helm chart
-        run: |
-          helm package ./namespace-configuration-operator --destination ./packaged-chart
-      # Publish helm chart 
       - name: Publish Helm chart
-        run: |
-          helm package ./namespace-configuration-operator --destination ./packaged-chart
-          curl -u ${{ secrets.STAKATER_NEXUS_PROD_HELM_USERNAME }}:${{ secrets.STAKATER_NEXUS_PROD_HELM_PASSWORD }} ${{ secrets.STAKATER_NEXUS_PROD_HELM_REGISTRY }} --upload-file ./packaged-chart/*.tgz
-          curl -u stakater-user:${{ secrets.STAKATER_GITHUB_TOKEN }} https://stakater.github.io/stakater-charts --upload-file ./packaged-chart/*.tgz
-          rm -rf ./packaged-chart
-          
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          branch: master
+          repository: stakater-charts
+          target_dir: docs
+          token: ${{ secrets.STAKATER_GITHUB_TOKEN }}
+          charts_dir: charts
+          charts_url: https://stakater.github.io/stakater-charts
+          owner: stakater
+          linting: off
+          commit_username: stakater-user
+          commit_email: stakater@gmail.com
 
   release-github:
     name: GitHub Release
