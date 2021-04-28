@@ -48,8 +48,6 @@ jobs:
         export SEMVER_COMPLIANT=$(echo ${TAG:1} | egrep '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-])(?:\.(?:0|[1-9]\d|\d*[a-zA-Z-][0-9a-zA-Z-]))))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$')
         if [ -z "$SEMVER_COMPLIANT" ]; then   echo "invalid semver tag ${GITHUB_REF/refs\/tags\//}"; exit 1; fi
 
-
-
     - name: Get the version for merge
       id: get_version2
       if: "! startsWith(github.ref, 'refs/tags')"
@@ -128,9 +126,17 @@ jobs:
           git config --global user.name "$GITHUB_ACTOR"
           git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com "
 
+
+      - name: Get the version for merge
+        id: get_version2
+        shell: bash 
+        run: |
+          echo "OPERATOR_IMAGE_TAG=v0.0.1" >> $GITHUB_ENV
+          echo "CHART_VERSION=0.0.1" >> $GITHUB_ENV 
+
       - name: build chart
         shell: bash
-        run: make helmchart VERSION=${BUNDLE_VERSION} IMG=${{ secrets.STAKATER_NEXUS_PROD_REGISTRY }}/${{ github.repository }}:${OPERATOR_IMAGE_TAG}
+        run: make helmchart VERSION=${CHART_VERSION} IMG=${{ secrets.STAKATER_NEXUS_PROD_REGISTRY }}/${{ github.repository }}:${OPERATOR_IMAGE_TAG}
 
       - name: Publish Helm chart
         uses: stefanprodan/helm-gh-pages@master
