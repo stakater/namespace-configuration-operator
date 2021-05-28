@@ -36,6 +36,13 @@ spec:
         name: {{ .Chart.Name }} 
         resources:
           {{- toYaml .Values.resources | nindent 12 }}
+        ports:
+          - containerPort: 8081
+            protocol: TCP
+            name: metrics-server
+          - containerPort: 8080
+            protocol: TCP
+            name: server
         livenessProbe:
           httpGet:
             path: /healthz
