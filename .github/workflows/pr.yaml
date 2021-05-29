@@ -15,6 +15,11 @@ jobs:
       run: | 
         echo "REPOSITORY_NAME=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_ENV    
 
+    - name: Print working directory
+      shell: bash
+      run: | 
+        pwd     
+
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
@@ -48,3 +53,51 @@ jobs:
     - name: build chart
       shell: bash
       run: make helmchart VERSION=0.0.1 IMG=${{ secrets.STAKATER_NEXUS_PROD_REGISTRY }}/${{ github.repository }}:0.0.1
+   
+    - name: Upload helm chart from build job
+      uses: actions/upload-artifact@v2
+      with:
+        name: helm
+        path: ./charts/
+    
+  release-helm-chart:
+    name: Helm Chart Release      
+    runs-on: ubuntu-latest
+    needs: ["build"]
+    steps:
+
+      - name: set repo name
+        shell: bash
+        run: | 
+          echo "REPOSITORY_NAME=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v2       
+
+      - name: Get the version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+
+      - name: Configure Git
+        shell: bash
+        run: |
+          git config --global user.name "$GITHUB_ACTOR"
+          git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com "
+
+      - name: Download helm chart from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: helm
+      - name: Print working directory
+        shell: bash
+        run: | 
+          ls namespace-configuration-operator/ 
+        # Setting up helm binary
+      - uses: azure/setup-helm@v1 
+  
+        # Publish helm chart to nexus
+      - name: Publish Helm chart
+        run: |
+          helm package ./namespace-configuration-operator --destination ./packaged-chart
+          curl -u ${{ secrets.STAKATER_NEXUS_PROD_HELM_USERNAME }}:${{ secrets.STAKATER_NEXUS_PROD_HELM_PASSWORD }} ${{ secrets.STAKATER_NEXUS_PROD_HELM_REGISTRY }} --upload-file ./packaged-chart/*.tgz
+          rm -rf ./packaged-chart
